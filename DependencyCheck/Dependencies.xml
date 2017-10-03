@@ -1,0 +1,187 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<Dependencies>
+  <Dependency>
+    <Name>.NET Framework 3.5</Name>
+    <ProcessorType>All</ProcessorType>
+    <Validation>
+      <RequiresAll>true</RequiresAll>
+      <Checks>
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v3.5</Subkey>
+          <Value>Install</Value>
+          <Expected>1</Expected>
+        </RegistryCheck>
+      </Checks>
+    </Validation>
+  </Dependency>
+  <Dependency>
+    <Name>.NET Framework 4.5.2</Name>
+    <ProcessorType>All</ProcessorType>
+    <Validation>
+      <RequiresAll>false</RequiresAll>
+      <Checks>
+        <!-- 4.5.2 -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>379893</Expected>
+        </RegistryCheck>
+        
+        <!-- .NET Framework 4.6 -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>393297</Expected>
+        </RegistryCheck>
+        <!-- 4.6 on Win 10 OS-->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>393295</Expected>
+        </RegistryCheck>
+
+        <!-- .NET Framework 4.6.1 -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>394271</Expected>
+        </RegistryCheck>
+        <!-- .NET Framework 4.6.1 on Windows 10 November Update -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>394254</Expected>
+        </RegistryCheck>
+
+        <!-- .NET Framework 4.6.2 -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>394806</Expected>
+        </RegistryCheck>
+        <!-- .NET Framework 4.6.2 on Windows 10 Anniversary Update -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>394802</Expected>
+        </RegistryCheck>
+              
+        <!-- .NET Framework 4.7 -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>460805</Expected>
+        </RegistryCheck>
+        <!-- .NET Framework 4.7 on Windows 10 Creators Update -->
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full</Subkey>
+          <Value>Release</Value>
+          <Expected>460798</Expected>
+        </RegistryCheck>
+      </Checks>
+    </Validation>
+  </Dependency>
+  <Dependency>
+    <Name>J# 2.0 Redistributable</Name>
+    <ProcessorType>All</ProcessorType>
+    <Validation>
+      <RequiresAll>true</RequiresAll>
+      <Checks>
+        <ProductCodeCheck>
+          <ProductCode>{68A35043-C55A-4237-88C9-37EE1C63ED71}</ProductCode>
+        </ProductCodeCheck>
+        <!-- <FileCheck>
+          <Path>%windir%\Microsoft.NET\Framework\VJSharp\vjshost.dll</Path>
+          <Version>2.0.50727.42</Version>
+        </FileCheck> -->
+      </Checks>
+    </Validation>
+  </Dependency>
+  <Dependency>
+    <!-- https://blogs.msdn.microsoft.com/astebner/2010/05/05/mailbag-how-to-detect-the-presence-of-the-visual-c-2010-redistributable-package/ -->
+    <Name>C++ 2010 SP1 Redistributable x64</Name>
+    <ProcessorType>x64</ProcessorType>
+    <Validation>
+      <RequiresAll>true</RequiresAll>
+      <Checks>
+        <!-- C++ 2010 SP 1 -->
+        <ProductCodeCheck>
+          <ProductCode>{1D8E6291-B0D5-35EC-8441-6616F567A0F7}</ProductCode>
+        </ProductCodeCheck>
+        <!--<RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x64</Subkey>
+          <Value>Installed</Value>
+          <Expected>1</Expected>
+        </RegistryCheck>
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x64</Subkey>
+          <Value>Installed</Value>
+          <Expected>1</Expected>
+        </RegistryCheck>-->
+      </Checks>
+    </Validation>
+  </Dependency>
+  <Dependency>
+    <Name>C++ 2010 SP1 Redistributable x86</Name>
+    <ProcessorType>All</ProcessorType>
+    <Validation>
+      <RequiresAll>true</RequiresAll>
+      <Checks>
+        <!-- C++ 2010 SP 1-->
+        <ProductCodeCheck>
+          <ProductCode>{F0C3E5D1-1ADE-321E-8167-68EF0DE699A5}</ProductCode>
+        </ProductCodeCheck> 
+        <!-- <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Microsoft\VisualStudio\10.0\VC\VCRedist\x86</Subkey>
+          <Value>Installed</Value>
+          <Expected>1</Expected>
+        </RegistryCheck>
+        <RegistryCheck>
+          <Key>HKLM</Key>
+          <Subkey>SOFTWARE\Wow6432Node\Microsoft\VisualStudio\10.0\VC\VCRedist\x86</Subkey>
+          <Value>Installed</Value>
+          <Expected>1</Expected>
+        </RegistryCheck> -->
+      </Checks>
+    </Validation>
+  </Dependency>
+  <Dependency>
+    <Name>MSXML 6.0 SP1</Name>
+    <InstallUrl>https://www.microsoft.com/en-us/download/details.aspx?id=6276</InstallUrl>
+    <ProcessorType>All</ProcessorType>
+    <Validation>
+      <RequiresAll>false</RequiresAll>
+      <Checks>
+        <!-- https://support.microsoft.com/en-us/help/269238/list-of-microsoft-xml-parser-msxml-versions -->
+        <!-- MS XML 6.0 SP1 -->
+        <FileCheck>
+          <Path>%windir%\system32\msxml6.dll</Path>
+          <Version>6.10.*</Version>
+        </FileCheck>
+        <!-- MS XML 6.0 SP2 -->
+        <FileCheck>
+          <Path>%windir%\system32\msxml6.dll</Path>
+          <Version>6.20.*</Version>
+        </FileCheck>
+      <!-- MS XML 6.0 SP3 -->
+        <FileCheck>
+          <Path>%windir%\system32\msxml6.dll</Path>
+          <Version>6.30.*</Version>
+        </FileCheck>
+      </Checks>
+    </Validation>
+  </Dependency>
+</Dependencies>
