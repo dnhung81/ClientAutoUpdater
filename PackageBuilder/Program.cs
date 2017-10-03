@@ -19,11 +19,9 @@ namespace PackageBuilder
             {
                 ExtractPackage(args[1], args[3], args[2]);
             }
-            else
+            else if(args != null && args.Length == 3 && args[0] == "generate")
             {
-                string path = @"C:\Users\dhumphreys\Desktop\bin";
-                string output = @"C:\Users\dhumphreys\Desktop\packages";
-
+                string path = args[1], output = args[2];
 
                 DirectoryInfo outputDirectory = GetOutputLocation(output);
 
@@ -83,7 +81,7 @@ namespace PackageBuilder
             if (folder.Exists)
             {
                 string zipFile = outputDirectory.FullName + "/" + folder.Name + ".tmp";
-                string outputFile = outputDirectory.FullName + "/" + folder.Name + ".pck";
+                string outputFile = outputDirectory.FullName + "/" + folder.Name + ".zip";
 
                 if (File.Exists(zipFile))
                 {
@@ -141,7 +139,7 @@ namespace PackageBuilder
                 {
                     File.Delete(zipFile);
                 }
-                package.Name = folder.Name + ".pck";
+                package.Name = folder.Name + ".zip";
                 package.Location = folder.Name + @"\";
             }
             return package;
