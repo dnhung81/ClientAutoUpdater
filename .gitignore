@@ -1,0 +1,6 @@
+DependencyCheck/bin/
+DependencyCheck/obj/
+PackageBuilder/bin/
+PackageBuilder/obj/
+Upgrader/bin/
+Upgrader/obj/
