@@ -15,9 +15,9 @@ namespace PackageBuilder
     {
         static void Main(string[] args)
         {
-            if (args[0] == "extract")
+            if (args != null && args.Length == 4 && args[0] == "extract")
             {
-
+                ExtractPackage(args[1], args[3], args[2]);
             }
             else
             {
@@ -149,7 +149,7 @@ namespace PackageBuilder
 
         private static void ExtractPackage(string packageFile, string outputDir, string packageId)
         {
-            string tempFile = Path.GetTempPath() + "\\" + DateTime.Now.ToLongTimeString() + ".tmp";
+            string tempFile = Path.GetTempPath() + "\\" + packageId + ".tmp";
             //Decrypt
             using (FileStream packageStream = new FileStream(packageFile, FileMode.Open, FileAccess.Read))
             {
