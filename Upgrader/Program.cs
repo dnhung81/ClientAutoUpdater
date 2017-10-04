@@ -30,8 +30,8 @@ namespace Upgrader
 
             string serverPath=null;
             string installDirectory = null;
-            string clientPackages = null;
-            string cePackages = null;
+            string upcPackagesUrl = null;
+            string cePackagesUrl = null;
 
             for (int i=0;i<args.Length; i++)
             {
@@ -44,19 +44,14 @@ namespace Upgrader
                     installDirectory = args[i + 1];
                     installDirectory = installDirectory.Trim('\"') + @"\";
                 }
-                else if (args[i].ToLowerInvariant() == "-upcpackages")
+                else if (args[i].ToLowerInvariant() == "-upcpackagesurl")
                 {
-                    clientPackages = args[i + 1];
+                    upcPackagesUrl = args[i + 1];
                 }
-                else if (args[i].ToLowerInvariant() == "-cepackages")
+                else if (args[i].ToLowerInvariant() == "-cepackagesurl")
                 {
-                    cePackages = args[i + 1];
+                    cePackagesUrl = args[i + 1];
                 }
-            }
-
-            if (serverPath == null)
-            {
-                Console.WriteLine("No server provided.  Use the argument -server to provide the server.");
             }
 
             if (installDirectory == null)
@@ -67,31 +62,31 @@ namespace Upgrader
                 //installDirectory = Environment.ExpandEnvironmentVariables(@"%appdata%\ANCILE\uPerform\App\");
             }
 
-            if (clientPackages == null)
+            if (upcPackagesUrl == null)
             {
-                clientPackages = "http://team6server2012.prod.shield.com:8080/download/Client/";
+                upcPackagesUrl = "http://team6server2012.prod.shield.com:8080/download/Client/";
             }
 
-            if (cePackages == null)
+            if (cePackagesUrl == null)
             {
-                cePackages = "http://team6server2012.prod.shield.com:8080/download/CaptureEngine/";
+                cePackagesUrl = "http://team6server2012.prod.shield.com:8080/download/CaptureEngine/";
             }
 
-            if (clientPackages != null && cePackages != null)
+            if (serverPath == null)
             {
                 string location = System.Reflection.Assembly.GetExecutingAssembly().Location;
                 installDirectory = Directory.GetParent(location).FullName + @"\";
 
                 serverPath = installDirectory + @"Client\";
                 Console.WriteLine("Download uPerform Client packages");
-                DownloadServerManifest(clientPackages, serverPath);
-                DownloadServerPackages(clientPackages, serverPath);
+                DownloadServerManifest(upcPackagesUrl, serverPath);
+                DownloadServerPackages(upcPackagesUrl, serverPath);
                 Run(serverPath, installDirectory);
 
                 serverPath = serverPath + @"bin\CaptureEngine\";
                 Console.WriteLine("Download Capture Engine packages");
-                DownloadServerManifest(cePackages, serverPath);
-                DownloadServerPackages(cePackages, serverPath);
+                DownloadServerManifest(cePackagesUrl, serverPath);
+                DownloadServerPackages(cePackagesUrl, serverPath);
                 Run(serverPath, installDirectory + @"Client\bin\");
                 
                 if (File.Exists(installDirectory + _localManifestName))
