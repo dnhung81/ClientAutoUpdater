@@ -175,6 +175,44 @@ namespace PackageBuilder
                 }
                 else if (args[0] == "CaptureEngine")
                 {
+                    string szCurrentDirectory = Directory.GetCurrentDirectory();
+
+                    if (Directory.Exists(Path.Combine(szCurrentDirectory, "x86"))
+                        && Directory.Exists(Path.Combine(szCurrentDirectory, "x64"))
+                        && File.Exists(Path.Combine(szCurrentDirectory, "Ancile.CaptureEngine.dll")))
+                    {
+                        Directory.CreateDirectory(Path.Combine(szCurrentDirectory, "Temp"));
+                        string szDestination = Path.Combine(szCurrentDirectory, @"Temp\CaptureEngine");
+                        Directory.CreateDirectory(szDestination);
+                        DirectoryCopy(Path.Combine(szCurrentDirectory, "x86"), Path.Combine(szDestination, "x86"), true);
+                        DirectoryCopy(Path.Combine(szCurrentDirectory, "x64"), Path.Combine(szDestination, "x64"), true);
+                        File.Copy(Path.Combine(szCurrentDirectory, "Ancile.CaptureEngine.dll"), Path.Combine(szDestination, "Ancile.CaptureEngine.dll"));
+                        DirectoryInfo outputDirectory = GetOutputLocation(szCurrentDirectory);
+
+                        Manifest manifest = new Manifest();
+
+                        DirectoryInfo sourceDirectory = new DirectoryInfo(Path.Combine(szCurrentDirectory, "Temp"));
+                        DirectoryInfo[] subDirectories = sourceDirectory.GetDirectories();
+                        foreach (DirectoryInfo subDirectory in subDirectories)
+                        {
+                            manifest.Add(GeneratePackage(subDirectory, outputDirectory));
+                        }
+
+                        //manifest.Id = GenerateManifestId(manifest);
+
+                        XmlSerializer x = new XmlSerializer(typeof(Manifest));
+                        using (XmlWriter manifestWriter = XmlWriter.Create(outputDirectory + "/manifest.xml"))
+                        {
+                            x.Serialize(manifestWriter, manifest);
+                        }
+
+                        WebClient client = new WebClient();
+                        client.UploadFile(args[1], outputDirectory + "/manifest.xml");
+                        client.UploadFile(args[1], outputDirectory + "/CaptureEngine.zip");
+                        Directory.Delete(Path.Combine(szCurrentDirectory, "Temp"), true);
+                        File.Delete(outputDirectory + "/manifest.xml");
+                        File.Delete(outputDirectory + "/CaptureEngine.zip");
+                    }
                 }
             }
         }
