@@ -19,8 +19,19 @@ namespace Upgrader
 
         static void Main(string[] args)
         {
+            try
+            {
+                Process[] procs = Process.GetProcessesByName("uPerform");
+                procs[0].Kill();
+            }
+            catch (Exception ex)
+            {
+            }
+
             string serverPath=null;
             string installDirectory = null;
+            string clientPackages = null;
+            string cePackages = null;
 
             for (int i=0;i<args.Length; i++)
             {
@@ -32,6 +43,14 @@ namespace Upgrader
                 {
                     installDirectory = args[i + 1];
                     installDirectory = installDirectory.Trim('\"') + @"\";
+                }
+                else if (args[i].ToLowerInvariant() == "-upcpackages")
+                {
+                    clientPackages = args[i + 1];
+                }
+                else if (args[i].ToLowerInvariant() == "-cepackages")
+                {
+                    cePackages = args[i + 1];
                 }
             }
 
@@ -48,26 +67,76 @@ namespace Upgrader
                 //installDirectory = Environment.ExpandEnvironmentVariables(@"%appdata%\ANCILE\uPerform\App\");
             }
 
-            try
+            if (clientPackages != null && cePackages != null)
             {
-                Process[] procs = Process.GetProcessesByName("uPerform");
-                procs[0].Kill();
+                string location = System.Reflection.Assembly.GetExecutingAssembly().Location;
+                installDirectory = Directory.GetParent(location).FullName + @"\";
+
+                serverPath = installDirectory + @"Client\";
+                Console.WriteLine("Download uPerform Client packages");
+                DownloadServerManifest(clientPackages, serverPath);
+                DownloadServerPackages(clientPackages, serverPath);
+                Run(serverPath, installDirectory);
+
+                serverPath = serverPath + @"bin\CaptureEngine\";
+                Console.WriteLine("Download Capture Engine packages");
+                DownloadServerManifest(cePackages, serverPath);
+                DownloadServerPackages(cePackages, serverPath);
+                Run(serverPath, installDirectory + @"Client\bin\");
+                
+                if (File.Exists(installDirectory + _localManifestName))
+                {
+                    File.Copy(installDirectory + _localManifestName, installDirectory + @"Client/" + _localManifestName);
+                    File.Delete(installDirectory + _localManifestName);
+                }
+
+                Process.Start(installDirectory + @"Client\bin\uPerform.exe");
             }
-            catch (Exception ex)
+            else
             {
-                Console.WriteLine(ex.Message.ToString());
+                Run(serverPath, installDirectory);
+
+                if (Directory.Exists(installDirectory + "Client"))
+                {
+                    string des = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).Parent.FullName + @"\";
+                    DirectoryCopy(installDirectory + "Client", des, true);
+                    Directory.Delete(installDirectory + "Client", true);
+                }
+
+                Process.Start("uPerform.exe");
+            }
+        }
+
+        private static void DownloadServerManifest(string serverUrl, string des)
+        {
+            System.Net.WebClient webClient = new System.Net.WebClient();
+            webClient.DownloadFile(serverUrl + "manifest.xml", _serverManifestName);
+
+            if (!Directory.Exists(des))
+            {
+                Directory.CreateDirectory(des);
             }
 
-            Run(serverPath, installDirectory);
-
-            if (Directory.Exists(installDirectory + "Client"))
+            if (File.Exists(_serverManifestName))
             {
-                string des = Directory.GetParent(System.Reflection.Assembly.GetExecutingAssembly().Location).Parent.FullName + @"\";
-                DirectoryCopy(installDirectory + "Client", des, true);
-                Directory.Delete(installDirectory + "Client", true);
+                File.Copy(_serverManifestName, des + _serverManifestName, true);
+                File.Delete(_serverManifestName);
             }
+        }
 
-            Process.Start("uPerform.exe");
+        private static void DownloadServerPackages(string serverUrl, string des)
+        {
+            System.Net.WebClient webClient = new System.Net.WebClient();
+            Manifest serverManifest = LoadLocalManifest(des + _serverManifestName);
+            foreach (Package serverPackage in serverManifest)
+            {
+                webClient.DownloadFile(serverUrl + serverPackage.Name, serverPackage.Name);
+                if (File.Exists(serverPackage.Name))
+                {
+                    File.Copy(serverPackage.Name, des + serverPackage.Name, true);
+                    File.Delete(serverPackage.Name);
+                }
+            }
         }
 
         private static void Run(string serverPath ,string installDirectory)
