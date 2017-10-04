@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -40,6 +41,90 @@ namespace PackageBuilder
                 using (XmlWriter manifestWriter = XmlWriter.Create(output + "/manifest.xml"))
                 {
                     x.Serialize(manifestWriter, manifest);
+                }
+            }
+            else if(args != null && args.Length == 7 && args[0] == "teamcity")
+            {
+                string szTeamCityServer = args[1],
+                    szBuildId = args[2],
+                    szBranchName = args[3],
+                    szUserName = args[4],
+                    szPassword = args[5],
+                    fileName = args[6];
+                WebRequest getBuildInfo = WebRequest.Create(szTeamCityServer + "/app/rest/builds/buildType:(id:" + szBuildId + "),branch:" + szBranchName + ",status:SUCCESS/artifacts");
+                getBuildInfo.Credentials = new System.Net.NetworkCredential(szUserName, szPassword);
+                WebResponse webResponse = getBuildInfo.GetResponse();
+                string szResponse = string.Empty;
+                if (webResponse != null)
+                {
+                    Stream objStream = webResponse.GetResponseStream();
+                    StreamReader objReader = new StreamReader(objStream);
+                    while (!objReader.EndOfStream)
+                    {
+                        szResponse += objReader.ReadLine();
+                    }
+                }
+                XmlDocument buildInfoDoc = new XmlDocument();
+                buildInfoDoc.LoadXml(szResponse);
+                XmlNodeList files = buildInfoDoc.SelectNodes("/files/file");
+                if(files != null)
+                {
+                    foreach(XmlNode file in files)
+                    {
+                        if(file.Attributes != null)
+                        {
+                            foreach(XmlAttribute attribute in file.Attributes)
+                            {
+                                if(attribute.Name == "href")
+                                {
+                                    string szHref = attribute.Value;
+                                    if (szHref.EndsWith(".zip"))
+                                    {
+                                        int startId = szHref.IndexOf("id:");
+                                        if (startId >= 0)
+                                        {
+                                            int endId = szHref.IndexOf("/", startId);
+                                            string szId = szHref.Substring(startId + 3, endId - startId - 3);
+                                            int startFile = szHref.LastIndexOf("/");
+                                            if (startFile >= 0)
+                                            {
+                                                string szArtifactName = szHref.Substring(startFile + 1);
+                                                string szArtifact = szTeamCityServer + "/repository/download/" + szBuildId + "/" + szId + ":id/" + szArtifactName;
+                                                WebClient downloadClient = new WebClient();
+                                                downloadClient.Credentials = new System.Net.NetworkCredential(szUserName, szPassword);
+                                                downloadClient.DownloadFile(szArtifact, szArtifactName);
+                                                if(File.Exists(szArtifactName))
+                                                {
+                                                    Directory.CreateDirectory("Temp");
+                                                    ZipFile.ExtractToDirectory(szArtifactName, @"Temp\Client");
+                                                    DirectoryInfo outputDirectory = GetOutputLocation(Directory.GetCurrentDirectory());
+
+                                                    Manifest manifest = new Manifest();
+
+                                                    DirectoryInfo sourceDirectory = new DirectoryInfo("Temp");
+                                                    DirectoryInfo[] subDirectories = sourceDirectory.GetDirectories();
+                                                    foreach (DirectoryInfo subDirectory in subDirectories)
+                                                    {
+                                                        manifest.Add(GeneratePackage(subDirectory, outputDirectory));
+                                                    }
+
+                                                    //manifest.Id = GenerateManifestId(manifest);
+
+                                                    XmlSerializer x = new XmlSerializer(typeof(Manifest));
+                                                    using (XmlWriter manifestWriter = XmlWriter.Create(outputDirectory + "/manifest.xml"))
+                                                    {
+                                                        x.Serialize(manifestWriter, manifest);
+                                                    }
+                                                    Directory.Delete("Temp", true);
+                                                    File.Delete(szArtifactName);
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
