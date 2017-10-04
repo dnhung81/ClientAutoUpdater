@@ -323,7 +323,7 @@ namespace PackageBuilder
                 {
                     using (var stream = File.OpenRead(zipFile))
                     {
-                        byte[] hashBytes = md5.ComputeHash(stream);
+                        byte[] hashBytes = Encoding.ASCII.GetBytes(System.DateTime.Now.ToLongTimeString());
                         foreach (byte bt in hashBytes)
                         {
                             package.Id = package.Id + bt.ToString("x2");
