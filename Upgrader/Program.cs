@@ -67,6 +67,16 @@ namespace Upgrader
                 //installDirectory = Environment.ExpandEnvironmentVariables(@"%appdata%\ANCILE\uPerform\App\");
             }
 
+            if (clientPackages == null)
+            {
+                clientPackages = "http://team6server2012.prod.shield.com:8080/download/Client/";
+            }
+
+            if (cePackages == null)
+            {
+                cePackages = "http://team6server2012.prod.shield.com:8080/download/CaptureEngine/";
+            }
+
             if (clientPackages != null && cePackages != null)
             {
                 string location = System.Reflection.Assembly.GetExecutingAssembly().Location;
