@@ -127,7 +127,105 @@ namespace PackageBuilder
                     }
                 }
             }
+            else if (args != null && args.Length == 2)
+            {
+                if (args[0] == "Client")
+                {
+                    string szCurrentDirectory = Directory.GetCurrentDirectory();
+
+                    if (Directory.Exists(Path.Combine(szCurrentDirectory, "bin"))
+                        && Directory.Exists(Path.Combine(szCurrentDirectory, "appdata"))
+                        && Directory.Exists(Path.Combine(szCurrentDirectory, "data"))
+                        && Directory.Exists(Path.Combine(szCurrentDirectory, "upgrade")))
+                    {
+                        Directory.CreateDirectory(Path.Combine(szCurrentDirectory, "Temp"));
+                        string szDestination = Path.Combine(szCurrentDirectory, @"Temp\Client");
+                        Directory.CreateDirectory(szDestination);
+                        DirectoryCopy(Path.Combine(szCurrentDirectory, "bin"), Path.Combine(szDestination, "bin"), true);
+                        DirectoryCopy(Path.Combine(szCurrentDirectory, "appdata"), Path.Combine(szDestination, "appdata"), true);
+                        DirectoryCopy(Path.Combine(szCurrentDirectory, "data"), Path.Combine(szDestination, "data"), true);
+                        DirectoryCopy(Path.Combine(szCurrentDirectory, "upgrade"), Path.Combine(szDestination, "upgrade"), true);
+                        File.Copy(Path.Combine(szCurrentDirectory, "install.config"), Path.Combine(szDestination, "install.config"));
+                        DirectoryInfo outputDirectory = GetOutputLocation(szCurrentDirectory);
+
+                        Manifest manifest = new Manifest();
+
+                        DirectoryInfo sourceDirectory = new DirectoryInfo(Path.Combine(szCurrentDirectory, "Temp"));
+                        DirectoryInfo[] subDirectories = sourceDirectory.GetDirectories();
+                        foreach (DirectoryInfo subDirectory in subDirectories)
+                        {
+                            manifest.Add(GeneratePackage(subDirectory, outputDirectory));
+                        }
+
+                        //manifest.Id = GenerateManifestId(manifest);
+
+                        XmlSerializer x = new XmlSerializer(typeof(Manifest));
+                        using (XmlWriter manifestWriter = XmlWriter.Create(outputDirectory + "/manifest.xml"))
+                        {
+                            x.Serialize(manifestWriter, manifest);
+                        }
+
+                        WebClient client = new WebClient();
+                        client.UploadFile(args[1], outputDirectory + "/manifest.xml");
+                        client.UploadFile(args[1], outputDirectory + "/Client.zip");
+                        Directory.Delete(Path.Combine(szCurrentDirectory, "Temp"), true);
+                        File.Delete(outputDirectory + "/manifest.xml");
+                        File.Delete(outputDirectory + "/Client.zip");
+                    }
+                }
+                else if (args[0] == "CaptureEngine")
+                {
+                }
+            }
         }
+
+        private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
+        {
+            DirectoryInfo dir = new DirectoryInfo(sourceDirName);
+            DirectoryInfo[] dirs = dir.GetDirectories();
+
+            // If the source directory does not exist, throw an exception.
+            if (!dir.Exists)
+            {
+                throw new DirectoryNotFoundException(
+                    "Source directory does not exist or could not be found: "
+                    + sourceDirName);
+            }
+
+            // If the destination directory does not exist, create it.
+            if (!Directory.Exists(destDirName))
+            {
+                Directory.CreateDirectory(destDirName);
+            }
+
+
+            // Get the file contents of the directory to copy.
+            FileInfo[] files = dir.GetFiles();
+
+            foreach (FileInfo file in files)
+            {
+                // Create the path to the new copy of the file.
+                string temppath = Path.Combine(destDirName, file.Name);
+
+                // Copy the file.
+                file.CopyTo(temppath, false);
+            }
+
+            // If copySubDirs is true, copy the subdirectories.
+            if (copySubDirs)
+            {
+
+                foreach (DirectoryInfo subdir in dirs)
+                {
+                    // Create the subdirectory.
+                    string temppath = Path.Combine(destDirName, subdir.Name);
+
+                    // Copy the subdirectories.
+                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
+                }
+            }
+        }
+
 
         private static string GenerateManifestId(Manifest manifest)
         {
